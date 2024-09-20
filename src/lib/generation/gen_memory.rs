@@ -1,15 +1,22 @@
 use handlebars::Handlebars;
 
-use crate::parse::{line_command::LineCommand, memory_segment::MemorySegment, ParsedLine};
+use crate::{
+    error::TranslatorResult,
+    parse::{line_command::LineCommand, memory_segment::MemorySegment, ParsedLine}, TranslatorError,
+};
 
 #[derive(serde::Serialize)]
-struct MemoryTemplateData {
+struct MemoryTemplateData<'a> {
     i: usize,
     mem_segment: String,
-    file_name: String,
+    file_name: &'a str,
 }
 
-pub fn gen_memory(handlebars: &Handlebars, line: ParsedLine, file_name: String) -> String {
+pub fn gen_memory(
+    handlebars: &Handlebars,
+    line: ParsedLine,
+    file_name: &str,
+) -> TranslatorResult<String> {
     let line_command = line.command;
     let memory_segment = line.memory_segment.unwrap();
     let memory_addr = line.memory_addr.unwrap();
@@ -27,7 +34,7 @@ pub fn gen_memory(handlebars: &Handlebars, line: ParsedLine, file_name: String) 
             | MemorySegment::Argument
             | MemorySegment::This
             | MemorySegment::That,
-        ) => "memory/push/normal",
+        ) => "memory/push/normal.hbs",
 
         (
             LineCommand::Pop,
@@ -35,24 +42,22 @@ pub fn gen_memory(handlebars: &Handlebars, line: ParsedLine, file_name: String) 
             | MemorySegment::Argument
             | MemorySegment::This
             | MemorySegment::That,
-        ) => "memory/pop/normal",
+        ) => "memory/pop/normal.hbs",
 
-        (LineCommand::Push, MemorySegment::Constant) => "memory/push/constant",
+        (LineCommand::Push, MemorySegment::Constant) => "memory/push/constant.hbs",
 
-        (LineCommand::Push, MemorySegment::Static) => "memory/push/static",
-        (LineCommand::Pop, MemorySegment::Static) => "memory/pop/static",
+        (LineCommand::Push, MemorySegment::Static) => "memory/push/static.hbs",
+        (LineCommand::Pop, MemorySegment::Static) => "memory/pop/static.hbs",
 
-        (LineCommand::Push, MemorySegment::Pointer) if data.i == 0 => "memory/push/pointer0",
-        (LineCommand::Pop, MemorySegment::Pointer) if data.i == 0 => "memory/pop/pointer0",
-        (LineCommand::Push, MemorySegment::Pointer) if data.i == 1 => "memory/push/pointer1",
-        (LineCommand::Pop, MemorySegment::Pointer) if data.i == 1 => "memory/pop/pointer1",
+        (LineCommand::Push, MemorySegment::Pointer) if data.i == 0 => "memory/push/pointer0.hbs",
+        (LineCommand::Pop, MemorySegment::Pointer) if data.i == 0 => "memory/pop/pointer0.hbs",
+        (LineCommand::Push, MemorySegment::Pointer) if data.i == 1 => "memory/push/pointer1.hbs",
+        (LineCommand::Pop, MemorySegment::Pointer) if data.i == 1 => "memory/pop/pointer1.hbs",
 
-        (LineCommand::Push, MemorySegment::Temp) => "memory/push/temp",
-        (LineCommand::Pop, MemorySegment::Temp) => "memory/pop/temp",
-        _ => panic!("Well, this should never happen"),
+        (LineCommand::Push, MemorySegment::Temp) => "memory/push/temp.hbs",
+        (LineCommand::Pop, MemorySegment::Temp) => "memory/pop/temp.hbs",
+        _ => return Err(TranslatorError::UnDefinedBehavior),
     };
 
-    handlebars
-        .render(template_name, &data)
-        .expect("Unable to render Hack symbolic code template.")
+    Ok(handlebars.render(template_name, &data)?)
 }
