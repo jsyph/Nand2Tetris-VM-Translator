@@ -3,13 +3,13 @@ pub mod memory_segment;
 pub mod parsed_line;
 
 pub use parsed_line::ParsedLine;
+pub use line_command::{LineCommand, LineCommandType};
+pub use memory_segment::MemorySegment;
 
 use lazy_static::lazy_static;
-use line_command::{LineCommand, LineCommandType};
-use memory_segment::MemorySegment;
 use regex::Regex;
 
-use crate::{error::TranslatorResult, TranslatorError};
+use crate::error::{TranslatorResult, TranslatorError};
 
 lazy_static! {
     static ref RE: Regex = Regex::new("//.*").unwrap();
@@ -19,7 +19,7 @@ lazy_static! {
 pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
     let mut res: Vec<ParsedLine> = Vec::new();
 
-    for i in 1..lines.len() {
+    for i in 0..lines.len() {
         // remove comments and empty lines
         let line_without_comment = RE.replace_all(&lines[i], "").trim().to_owned();
         if line_without_comment.is_empty() {
@@ -32,7 +32,7 @@ pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
             Some(res) => res,
             None => {
                 return Err(TranslatorError::SyntaxError {
-                    line_no: i,
+                    line_no: i + 1,
                     line: lines[i].to_owned(),
                     message: format!("Invalid or Unimplemented Operation: {}", parts[0]),
                 });
@@ -42,7 +42,7 @@ pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
         if let LineCommandType::Memory = command.command_type() {
             if parts.len() < 3 {
                 return Err(TranslatorError::SyntaxError {
-                    line_no: i,
+                    line_no: i + 1,
                     line: lines[i].to_owned(),
                     message: "Missing Arguments".to_owned(),
                 });
@@ -53,7 +53,7 @@ pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
                 Some(res) => res,
                 None => {
                     return Err(TranslatorError::SyntaxError {
-                        line_no: i,
+                        line_no: i + 1,
                         line: lines[i].to_owned(),
                         message: format!("Invalid Memory Segment: {}", parts[1]),
                     });
@@ -63,7 +63,7 @@ pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
             // pop cant be with constant memory segment
             if let (MemorySegment::Constant, LineCommand::Pop) = (&memory_segment, &command) {
                 return Err(TranslatorError::SyntaxError {
-                    line_no: i,
+                    line_no: i + 1,
                     line: lines[i].to_owned(),
                     message: format!("Invalid pop argument: constant"),
                 });
@@ -74,7 +74,7 @@ pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
                 Ok(res) => res,
                 Err(_) => {
                     return Err(TranslatorError::SyntaxError {
-                        line_no: i,
+                        line_no: i + 1,
                         line: lines[i].to_owned(),
                         message: format!("Invalid Memory Address: {}", parts[2]),
                     });

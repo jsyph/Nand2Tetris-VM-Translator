@@ -1,8 +1,8 @@
 use handlebars::Handlebars;
 
 use crate::{
-    error::TranslatorResult,
-    parse::{line_command::LineCommand, memory_segment::MemorySegment, ParsedLine}, TranslatorError,
+    error::{TranslatorError, TranslatorResult},
+    parse::{line_command::LineCommand, memory_segment::MemorySegment, ParsedLine},
 };
 
 #[derive(serde::Serialize)]
@@ -10,12 +10,14 @@ struct MemoryTemplateData<'a> {
     i: usize,
     mem_segment: String,
     file_name: &'a str,
+    optimize: bool,
 }
 
 pub fn gen_memory(
     handlebars: &Handlebars,
     line: ParsedLine,
     file_name: &str,
+    optimize: bool,
 ) -> TranslatorResult<String> {
     let line_command = line.command;
     let memory_segment = line.memory_segment.unwrap();
@@ -25,6 +27,7 @@ pub fn gen_memory(
         i: memory_addr,
         mem_segment: memory_segment.to_string(),
         file_name: file_name,
+        optimize: optimize,
     };
 
     let template_name = match (line_command, memory_segment) {

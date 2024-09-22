@@ -1,3 +1,4 @@
+use colored::Colorize;
 use handlebars::RenderError;
 use std::{error::Error, fmt, io};
 
@@ -24,35 +25,32 @@ impl Error for TranslatorError {}
 
 impl fmt::Display for TranslatorError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
+        let message = match self {
             TranslatorError::SyntaxError {
                 line_no,
                 line,
                 message,
-            } => write!(
-                f,
-                "Syntax Error on line {}:\n\t{}\n{}",
-                line_no, line, message
-            ),
+            } => format!("Syntax Error on line {}:\n\t{}\n{}", line_no, line, message),
             TranslatorError::RenderError {
                 template_name,
                 line_no,
                 column_no,
-            } => write!(
-                f,
-                "Render Error of '{:?}'. On line {:?} | {} @ {:?}",
+            } => format!(
+                "Render Error of '{:?}'. On line {:?} | line {} @ {:?}",
                 template_name,
                 line_no,
                 line!(),
                 column_no
             ),
             TranslatorError::UnDefinedBehavior => {
-                write!(f, "Undefined behavior on line {}", line!())
+                format!("Undefined behavior on line {}", line!())
             }
             TranslatorError::FileIOError { message } => {
-                write!(f, "File IO Error on line {}: {}", line!(), message)
+                format!("File IO Error on line {}: {}", line!(), message)
             }
-        }
+        }.bold().red();
+
+        write!(f, "{}", message)
     }
 }
 
