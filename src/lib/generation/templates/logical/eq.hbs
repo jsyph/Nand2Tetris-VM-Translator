@@ -1,11 +1,19 @@
 {{#unless optimize}}// BEGIN: eq{{/unless}}
 @SP
+{{#if optimize}}
+AM=M-1
+{{else}}
 M=M-1
 A=M
+{{/if}}
 D=M
 @SP
+{{#if optimize}}
+AM=M-1
+{{else}}
 M=M-1
 A=M
+{{/if}}
 D=D-M
 @{{ random_addr }}_TRUE
 D;JEQ

@@ -1,7 +1,11 @@
 {{#unless optimize}}// BEGIN: pop pointer 1{{/unless}}
 @SP
+{{#if optimize}}
+AM=M-1
+{{else}}
 M=M-1
 A=M
+{{/if}}
 D=M
 @THAT
 M=D
