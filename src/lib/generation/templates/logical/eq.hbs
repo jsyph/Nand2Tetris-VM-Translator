@@ -18,8 +18,12 @@ D=D-M
 @{{ random_addr }}_TRUE
 D;JEQ
 @{{ random_addr }}
+{{#if optimize}}
+D=0;JMP
+{{else}}
 D=0
 0;JMP
+{{/if}}
 ({{ random_addr }}_TRUE)
 D=-1
 ({{ random_addr }})

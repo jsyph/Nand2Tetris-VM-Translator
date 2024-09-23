@@ -1,0 +1,11 @@
+{{#unless optimize}}// BEGIN: if-goto {{ label }}{{/unless}}
+@SP
+{{#if optimize}}
+AM=M-1
+{{else}}
+M=M-1
+A=M
+{{/if}}
+D=M
+@{{ label }}
+D;JNE

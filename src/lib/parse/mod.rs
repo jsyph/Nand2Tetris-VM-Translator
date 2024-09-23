@@ -6,6 +6,13 @@ pub use parsed_line::ParsedLine;
 pub use line_command::{LineCommand, LineCommandType};
 pub use memory_segment::MemorySegment;
 
+mod parse_memory;
+mod parse_arithmetic_logical;
+mod parse_branching;
+
+use parse_memory::parse_memory;
+use parse_arithmetic_logical::parse_arithmetic_logical;
+use parse_branching::parse_branching;
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -17,7 +24,7 @@ lazy_static! {
 
 /// Takes the raw input file lines as a Vector of Strings
 pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
-    let mut res: Vec<ParsedLine> = Vec::new();
+    let mut parse_output: Vec<ParsedLine> = Vec::new();
 
     for i in 0..lines.len() {
         // remove comments and empty lines
@@ -39,62 +46,14 @@ pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
             }
         };
 
-        if let LineCommandType::Memory = command.command_type() {
-            if parts.len() < 3 {
-                return Err(TranslatorError::SyntaxError {
-                    line_no: i + 1,
-                    line: lines[i].to_owned(),
-                    message: "Missing Arguments".to_owned(),
-                });
-            }
+        let parsed_line = match command.command_type() {
+            LineCommandType::Arithmetic | LineCommandType::Logical => parse_arithmetic_logical(&lines[i], &parts, command, i + 1),
+            LineCommandType::Memory => parse_memory(&lines[i], &parts, command, i + 1),
+            LineCommandType::Branching => parse_branching(&lines[i], &parts, command, i + 1),
+        }?;
 
-            let memory_segment_parse_result = MemorySegment::parse(parts[1]);
-            let memory_segment = match memory_segment_parse_result {
-                Some(res) => res,
-                None => {
-                    return Err(TranslatorError::SyntaxError {
-                        line_no: i + 1,
-                        line: lines[i].to_owned(),
-                        message: format!("Invalid Memory Segment: {}", parts[1]),
-                    });
-                }
-            };
-
-            // pop cant be with constant memory segment
-            if let (MemorySegment::Constant, LineCommand::Pop) = (&memory_segment, &command) {
-                return Err(TranslatorError::SyntaxError {
-                    line_no: i + 1,
-                    line: lines[i].to_owned(),
-                    message: format!("Invalid pop argument: constant"),
-                });
-            }
-
-            let memory_addr_parse_result = parts[2].parse::<usize>();
-            let memory_addr = match memory_addr_parse_result {
-                Ok(res) => res,
-                Err(_) => {
-                    return Err(TranslatorError::SyntaxError {
-                        line_no: i + 1,
-                        line: lines[i].to_owned(),
-                        message: format!("Invalid Memory Address: {}", parts[2]),
-                    });
-                }
-            };
-
-            res.push(ParsedLine {
-                command: command,
-                memory_segment: Some(memory_segment),
-                memory_addr: Some(memory_addr),
-            });
-            continue;
-        }
-
-        res.push(ParsedLine {
-            command: command,
-            memory_segment: None,
-            memory_addr: None,
-        });
+        parse_output.push(parsed_line);
     }
 
-    Ok(res)
+    Ok(parse_output)
 }

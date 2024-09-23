@@ -101,7 +101,10 @@ fn main() {
     output_file
         .write_all(output_file_header.as_bytes())
         .unwrap();
-
+    if !args.optimize {
+        output_file.write_all("\n".as_bytes()).unwrap();
+    }
+    
     for translated_line in generated_code {
         output_file.write_all(translated_line.as_bytes()).unwrap();
 

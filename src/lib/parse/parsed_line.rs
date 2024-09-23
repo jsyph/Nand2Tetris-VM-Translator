@@ -5,6 +5,7 @@ pub struct ParsedLine {
     pub command: LineCommand,
     pub memory_segment: Option<MemorySegment>,
     pub memory_addr: Option<usize>,
+    pub label: Option<String>,
 }
 
 impl fmt::Debug for ParsedLine {
