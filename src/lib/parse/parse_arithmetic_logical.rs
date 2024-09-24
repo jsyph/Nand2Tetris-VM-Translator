@@ -19,7 +19,8 @@ pub fn parse_arithmetic_logical(
     Ok(ParsedLine {
         command,
         memory_segment: None,
-        memory_addr: None,
         label: None,
+        func: None,
+        i: None,
     })
 }

@@ -9,10 +9,12 @@ pub use memory_segment::MemorySegment;
 mod parse_memory;
 mod parse_arithmetic_logical;
 mod parse_branching;
+mod parse_function;
 
 use parse_memory::parse_memory;
 use parse_arithmetic_logical::parse_arithmetic_logical;
 use parse_branching::parse_branching;
+use parse_function::parse_function;
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -50,6 +52,7 @@ pub fn parse_lines(lines: Vec<String>) -> TranslatorResult<Vec<ParsedLine>> {
             LineCommandType::Arithmetic | LineCommandType::Logical => parse_arithmetic_logical(&lines[i], &parts, command, i + 1),
             LineCommandType::Memory => parse_memory(&lines[i], &parts, command, i + 1),
             LineCommandType::Branching => parse_branching(&lines[i], &parts, command, i + 1),
+            LineCommandType::Function => parse_function(&lines[i], &parts, command, i+ 1),
         }?;
 
         parse_output.push(parsed_line);

@@ -1,0 +1,9 @@
+{{#unless optimize}}// function {{ func }} {{ n_vars }}{{/unless}}
+({{ func }})
+{{#each n_vars_vec}}
+@SP
+A=M
+M=0
+@SP
+M=M+1
+{{/each}}

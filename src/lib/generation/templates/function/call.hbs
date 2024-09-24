@@ -1,0 +1,45 @@
+{{#unless optimize}}// call {{ func }} {{ n_args }}{{/unless}}
+@{{ func }}_RETURN
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+D=M
+@{{ arg_addr_offset }}
+D=D-A
+@ARG
+M=D
+@{{ func }}
+0;JMP
+({{ func }}_RETURN)

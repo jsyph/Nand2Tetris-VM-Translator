@@ -2,11 +2,13 @@ mod gen_arithmetic;
 mod gen_logical;
 mod gen_memory;
 mod gen_branching;
+mod gen_function;
 
 use gen_arithmetic::gen_arithmetic;
 use gen_logical::gen_logical;
 use gen_memory::gen_memory;
 use gen_branching::gen_branching;
+use gen_function::gen_function;
 use rust_embed::Embed;
 
 use crate::{
@@ -35,6 +37,7 @@ pub fn generate_code(
             LineCommandType::Logical => gen_logical(&handlebars, line, optimize)?,
             LineCommandType::Memory => gen_memory(&handlebars, line, file_name, optimize)?,
             LineCommandType::Branching => gen_branching(&handlebars, line, optimize)?,
+            LineCommandType::Function => gen_function(&handlebars, line, optimize)?,
         };
         res.push(generated_code);
     }

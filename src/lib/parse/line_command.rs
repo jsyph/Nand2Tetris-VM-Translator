@@ -4,7 +4,7 @@ pub enum LineCommandType {
     Logical,
     Memory,
     Branching,
-    // Function,
+    Function,
 }
 
 #[derive(strum::Display, Debug)]
@@ -23,9 +23,9 @@ pub enum LineCommand {
     GoTo,
     IfGoTo,
     Label,
-    // Call,
-    // Function,
-    // Return,
+    Call,
+    Function,
+    Return,
 }
 
 impl LineCommand {
@@ -47,6 +47,9 @@ impl LineCommand {
             "goto" => Some(Self::GoTo),
             "if-goto" => Some(Self::IfGoTo),
             "label" => Some(Self::Label),
+            "call" => Some(Self::Call),
+            "function" => Some(Self::Function),
+            "return" => Some(Self::Return),
             _ => None,
         }
     }
@@ -59,6 +62,7 @@ impl LineCommand {
                 LineCommandType::Logical
             }
             Self::GoTo | Self::IfGoTo | Self::Label => LineCommandType::Branching,
+            Self::Call | Self::Function | Self::Return => LineCommandType::Function,
         }
     }
 }

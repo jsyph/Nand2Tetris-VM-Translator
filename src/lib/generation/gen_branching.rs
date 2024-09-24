@@ -16,7 +16,7 @@ pub fn gen_branching(
     line: ParsedLine,
     optimize: bool,
 ) -> TranslatorResult<String> {
-    log::debug!("Generating code for {:?}", &line);
+
 
     let line_command = line.command;
     let label = line.label.unwrap();

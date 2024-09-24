@@ -21,7 +21,7 @@ pub fn gen_memory(
 ) -> TranslatorResult<String> {
     let line_command = line.command;
     let memory_segment = line.memory_segment.unwrap();
-    let memory_addr = line.memory_addr.unwrap();
+    let memory_addr = line.i.unwrap();
 
     let data = MemoryTemplateData {
         i: memory_addr,

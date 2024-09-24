@@ -18,8 +18,9 @@ pub fn parse_branching(
 
     Ok(ParsedLine {
         command: command,
-        memory_segment: None,
-        memory_addr: None,
         label: Some(parts[1].to_owned()),
+        memory_segment: None,
+        func: None,
+        i: None,
     })
 }

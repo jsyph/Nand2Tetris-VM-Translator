@@ -1,6 +1,6 @@
 use colored::Colorize;
 use handlebars::RenderError;
-use std::{error::Error, fmt, io};
+use std::{error::Error, fmt, io, num::ParseIntError};
 
 pub type TranslatorResult<T> = Result<T, TranslatorError>;
 
@@ -17,6 +17,9 @@ pub enum TranslatorError {
     },
     FileIOError {
         message: String,
+    },
+    InvalidUnignedInt {
+        error: ParseIntError,
     },
     UnDefinedBehavior,
 }
@@ -48,7 +51,12 @@ impl fmt::Display for TranslatorError {
             TranslatorError::FileIOError { message } => {
                 format!("File IO Error on line {}: {}", line!(), message)
             }
-        }.bold().red();
+            TranslatorError::InvalidUnignedInt { error } => {
+                format!("Invalid Unsigned Int Error : {}", error)
+            }
+        }
+        .bold()
+        .red();
 
         write!(f, "{}", message)
     }
@@ -74,6 +82,14 @@ impl From<io::Error> for TranslatorError {
     fn from(value: io::Error) -> Self {
         Self::FileIOError {
             message: value.to_string(),
+        }
+    }
+}
+
+impl From<ParseIntError> for TranslatorError {
+    fn from(value: ParseIntError) -> Self {
+        Self::InvalidUnignedInt {
+            error: value,
         }
     }
 }

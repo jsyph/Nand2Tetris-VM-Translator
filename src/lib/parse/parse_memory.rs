@@ -37,22 +37,13 @@ pub fn parse_memory(
         });
     }
 
-    let memory_addr_parse_result = parts[2].parse::<usize>();
-    let memory_addr = match memory_addr_parse_result {
-        Ok(res) => res,
-        Err(_) => {
-            return Err(TranslatorError::SyntaxError {
-                line_no: line_no,
-                line: line.to_owned(),
-                message: format!("Invalid Memory Address: {}", parts[2]),
-            });
-        }
-    };
+    let memory_addr = parts[2].parse::<usize>()?;
 
     Ok(ParsedLine {
         command: command,
         memory_segment: Some(memory_segment),
-        memory_addr: Some(memory_addr),
+        i: Some(memory_addr),
         label: None,
+        func: None,
     })
 }

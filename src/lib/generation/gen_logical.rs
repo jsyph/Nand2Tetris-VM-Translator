@@ -15,7 +15,7 @@ struct LogicalTemplateData {
 const CHARSET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
 const RAND_STRING_SIZE: usize = 10;
 pub fn gen_logical(handlebars: &Handlebars, line: ParsedLine, optimize: bool) -> TranslatorResult<String> {
-    log::debug!("Generating code for {:?}", &line);
+
     
     let line_command = line.command;
 
