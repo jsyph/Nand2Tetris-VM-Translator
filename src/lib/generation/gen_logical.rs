@@ -1,8 +1,8 @@
 use handlebars::Handlebars;
-use random_string::generate;
+use uuid::Uuid;
 
 use crate::{
-    error::{TranslatorResult, TranslatorError},
+    error::{TranslatorError, TranslatorResult},
     parse::{line_command::LineCommand, ParsedLine},
 };
 
@@ -12,17 +12,19 @@ struct LogicalTemplateData {
     optimize: bool,
 }
 
-const CHARSET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-const RAND_STRING_SIZE: usize = 10;
-pub fn gen_logical(handlebars: &Handlebars, line: ParsedLine, optimize: bool) -> TranslatorResult<String> {
+pub fn gen_logical(
+    handlebars: &Handlebars,
+    line: ParsedLine,
+    optimize: bool,
+) -> TranslatorResult<String> {
     let line_command = line.command;
+    let uuid = Uuid::new_v4().simple().to_string().to_uppercase();
 
-    let random_addr = format!(
-        "{}_{}",
-        line_command.to_string().to_uppercase(),
-        generate(RAND_STRING_SIZE, CHARSET)
-    );
-    let data = LogicalTemplateData { random_addr, optimize };
+    let random_addr = format!("{}_{}", line_command.to_string().to_uppercase(), uuid);
+    let data = LogicalTemplateData {
+        random_addr,
+        optimize,
+    };
 
     let template_name = match line_command {
         LineCommand::Equal => "logical/eq.hbs",

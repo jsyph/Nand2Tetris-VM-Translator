@@ -1,5 +1,5 @@
 use handlebars::Handlebars;
-use random_string::generate;
+use uuid::Uuid;
 
 use crate::{
     error::TranslatorResult,
@@ -16,21 +16,19 @@ struct FunctionCallTemplateData<'a> {
     optimize: bool,
 }
 
-const CHARSET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-const RAND_STRING_SIZE: usize = 10;
 fn gen_function_call(
     handlebars: &Handlebars,
     func: &str,
     n_args: usize,
     optimize: bool,
 ) -> TranslatorResult<String> {
-    let random_str = generate(RAND_STRING_SIZE, CHARSET);
-    
+    let uuid = Uuid::new_v4().simple().to_string().to_uppercase();
+
     let data = FunctionCallTemplateData {
         func: &func,
         n_args: n_args,
         arg_addr_offset: n_args + 5, // ADDR = SP - (5 + n_args)
-        random_str,
+        random_str: uuid,
         optimize,
     };
 

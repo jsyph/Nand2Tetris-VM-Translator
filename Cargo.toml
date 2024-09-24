@@ -11,11 +11,11 @@ path = "src/lib/lib.rs"
 clap = { version = "4.5.17", features = ["cargo", "derive"] }
 colored = "2.1.0"
 handlebars = { version = "6.1.0", features = ["rust-embed"] }
-lazy_static = "1.5.0"
 log = { version = "0.4.22" }
-random-string = "1.1.0"
 regex = "1.10.6"
 rust-embed = "8.5.0"
 serde = { version = "1.0.210", features = ["derive"] }
-simple_logger = "5.0.0"
 strum = { version = "0.26.3", features = ["derive"] }
+uuid = { version = "1.10.0", features = ["v4", "fast-rng"] }
+simple_logger = "5.0.0"
+lazy_static = "1.5.0"
