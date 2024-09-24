@@ -15,10 +15,7 @@ struct LogicalTemplateData {
 const CHARSET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
 const RAND_STRING_SIZE: usize = 10;
 pub fn gen_logical(handlebars: &Handlebars, line: ParsedLine, optimize: bool) -> TranslatorResult<String> {
-
-    
     let line_command = line.command;
-
 
     let random_addr = format!(
         "{}_{}",

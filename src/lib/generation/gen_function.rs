@@ -1,4 +1,5 @@
 use handlebars::Handlebars;
+use random_string::generate;
 
 use crate::{
     error::TranslatorResult,
@@ -11,19 +12,25 @@ struct FunctionCallTemplateData<'a> {
     func: &'a str,
     n_args: usize,
     arg_addr_offset: usize,
+    random_str: String,
     optimize: bool,
 }
 
+const CHARSET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+const RAND_STRING_SIZE: usize = 10;
 fn gen_function_call(
     handlebars: &Handlebars,
     func: &str,
     n_args: usize,
     optimize: bool,
 ) -> TranslatorResult<String> {
+    let random_str = generate(RAND_STRING_SIZE, CHARSET);
+    
     let data = FunctionCallTemplateData {
         func: &func,
         n_args: n_args,
         arg_addr_offset: n_args + 5, // ADDR = SP - (5 + n_args)
+        random_str,
         optimize,
     };
 

@@ -1,5 +1,5 @@
 {{#unless optimize}}// call {{ func }} {{ n_args }}{{/unless}}
-@{{ func }}_RETURN
+@{{ func }}_RETURN_{{ random_str }}
 D=A
 @SP
 A=M
@@ -42,4 +42,4 @@ D=D-A
 M=D
 @{{ func }}
 0;JMP
-({{ func }}_RETURN)
+({{ func }}_RETURN_{{ random_str }})
