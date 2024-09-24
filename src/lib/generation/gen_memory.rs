@@ -9,14 +9,14 @@ use crate::{
 struct MemoryTemplateData<'a> {
     i: usize,
     mem_segment: String,
-    file_name: &'a str,
+    name: &'a str,
     optimize: bool,
 }
 
 pub fn gen_memory(
     handlebars: &Handlebars,
     line: ParsedLine,
-    file_name: &str,
+    name: &str,
     optimize: bool,
 ) -> TranslatorResult<String> {
     let line_command = line.command;
@@ -26,7 +26,7 @@ pub fn gen_memory(
     let data = MemoryTemplateData {
         i: memory_addr,
         mem_segment: memory_segment.to_string(),
-        file_name: file_name,
+        name: name,
         optimize: optimize,
     };
 

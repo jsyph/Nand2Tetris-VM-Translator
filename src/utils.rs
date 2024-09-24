@@ -7,7 +7,7 @@ pub fn file_into_lines(file: File) -> Vec<String> {
         .collect()
 }
 
-pub fn file_name_from_path(path: &Path) -> String {
+pub fn name_from_path(path: &Path) -> String {
     path
         .with_extension("")
         .file_name()

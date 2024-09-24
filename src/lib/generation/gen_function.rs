@@ -12,7 +12,7 @@ struct FunctionCallTemplateData<'a> {
     func: &'a str,
     n_args: usize,
     arg_addr_offset: usize,
-    random_str: String,
+    random_addr: String,
     optimize: bool,
 }
 
@@ -23,12 +23,13 @@ fn gen_function_call(
     optimize: bool,
 ) -> TranslatorResult<String> {
     let uuid = Uuid::new_v4().simple().to_string().to_uppercase();
+    let random_addr = format!("{}_{}", func, uuid);
 
     let data = FunctionCallTemplateData {
         func: &func,
         n_args: n_args,
         arg_addr_offset: n_args + 5, // ADDR = SP - (5 + n_args)
-        random_str: uuid,
+        random_addr,
         optimize,
     };
 

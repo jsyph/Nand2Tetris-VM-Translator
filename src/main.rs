@@ -2,13 +2,18 @@ mod utils;
 
 use clap::{crate_name, crate_version, Parser};
 use colored::Colorize;
-use std::{fs::File, io::prelude::*, path::Path};
+use std::{
+    fs::{self, File},
+    io::prelude::*,
+    path::Path,
+};
 use translator_lib::{generate_code, parse_lines, TranslatorError};
-use utils::{file_into_lines, file_name_from_path};
+use utils::{file_into_lines, name_from_path};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
+    /// Input file or directory
     target: String,
 
     #[arg(short, long)]
@@ -41,24 +46,55 @@ fn main() {
         eprintln!(
             "{}",
             TranslatorError::FileIOError {
-                message: format!("Target file path `{}` does not exist", args.target),
+                message: format!("Target path `{}` does not exist", args.target),
             }
         );
         return;
     }
-    let target_file_name: String = file_name_from_path(target_path);
-    log::debug!("target_file_name = {}", &target_file_name);
+    let target_name: String = name_from_path(target_path);
+    log::debug!("target_name = {}", &target_name);
 
-    let target_result = File::open(target_path);
-    log::debug!("target_result = {:?}", target_result);
-    if target_result.is_err() {
-        eprintln!("{}", TranslatorError::from(target_result.unwrap_err()));
-        return;
+    // if file is target, then parse into vector
+    // if is directory, loop over .vm files and combine into vector
+
+    let mut unprocessed_lines: Vec<String> = Vec::new();
+    if target_path.is_file() {
+        let target_result = File::open(target_path);
+        log::debug!("target_result = {:?}", target_result);
+        if target_result.is_err() {
+            eprintln!("{}", TranslatorError::from(target_result.unwrap_err()));
+            return;
+        }
+        let target = target_result.unwrap();
+
+        // ========== parse file into lines ==========
+        unprocessed_lines = file_into_lines(target);
+    } else {
+        for file in fs::read_dir(target_path).expect("Unable to read directory") {
+            let path = file.expect("Unable to get file entry").path();
+            log::debug!("{:?}: path = {:?}", target_path, path);
+
+            if path.extension().unwrap() != "vm" {
+                log::debug!("Skipped processing {}", path.to_str().unwrap());
+                continue;
+            }
+
+            let target_result = File::open(path);
+            log::debug!("target_result = {:?}", target_result);
+            if target_result.is_err() {
+                eprintln!("{}", TranslatorError::from(target_result.unwrap_err()));
+                return;
+            }
+            let target = target_result.unwrap();
+
+            // ========== parse file into lines ==========
+            let lines = file_into_lines(target);
+            for line in lines {
+                unprocessed_lines.push(line);
+            }
+        }
     }
-    let target = target_result.unwrap();
-
-    // ========== parse file into lines ==========
-    let unprocessed_lines: Vec<String> = file_into_lines(target);
+    log::debug!("Unprocessed lines length is {}", unprocessed_lines.len());
 
     // ========== parse input into tokens ==========
     let parsed_lines_result = parse_lines(unprocessed_lines);
@@ -70,7 +106,12 @@ fn main() {
     log::debug!("Parsed lines length is {}", parsed_lines.len());
 
     // ========== generate code ==========
-    let generation_result = generate_code(parsed_lines, &target_file_name, args.optimize);
+    let generation_result = generate_code(
+        parsed_lines,
+        &target_name,
+        args.optimize,
+        target_path.is_dir(),// generate bootstrap if target is directory
+    );
     if generation_result.is_err() {
         eprintln!("{}", generation_result.unwrap_err());
         return;
@@ -80,7 +121,7 @@ fn main() {
 
     // ========== save generated code to output file
     let output_file_name = if args.output.is_none() {
-        format!("{}.asm", target_file_name)
+        format!("{}.asm", target_name)
     } else {
         args.output.unwrap()
     };
@@ -104,7 +145,7 @@ fn main() {
     if !args.optimize {
         output_file.write_all("\n".as_bytes()).unwrap();
     }
-    
+
     for translated_line in generated_code {
         output_file.write_all(translated_line.as_bytes()).unwrap();
 

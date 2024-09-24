@@ -1,5 +1,9 @@
-{{#unless optimize}}// call {{ func }} {{ n_args }}{{/unless}}
-@{{ random_addr }}_RETURN
+{{#unless optimize}}// bootstrap code{{/unless}}
+@256
+D=A
+@SP
+M=D
+@Sys.init_RETURN
 D=A
 @SP
 A=M
@@ -36,10 +40,10 @@ M=D
 M=M+1
 @SP
 D=M
-@{{ arg_addr_offset }}
+@5
 D=D-A
 @ARG
 M=D
-@{{ func }}
+@Sys.init
 0;JMP
-({{ random_addr }}_RETURN)
+(Sys.init_RETURN)
